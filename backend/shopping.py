@@ -2,6 +2,21 @@ from fractions import Fraction
 from collections import defaultdict
 from backend import units
 
+DENSITIES = {
+    'flour': Fraction(120, 236),
+    'all-purpose flour': Fraction(120, 236),
+    'whole wheat flour': Fraction(120, 236),
+    'sugar': Fraction(200, 236),
+    'granulated sugar': Fraction(200, 236),
+    'brown sugar': Fraction(220, 236),
+    'butter': Fraction(227, 236),
+    'water': Fraction(1),
+    'milk': Fraction(103, 100),
+    'oil': Fraction(92, 100),
+    'vegetable oil': Fraction(92, 100),
+    'olive oil': Fraction(92, 100)
+}
+
 def build_list(recipes: list) -> list:
     buckets = defaultdict(lambda: defaultdict(list))
     
@@ -48,6 +63,13 @@ def build_list(recipes: list) -> list:
             
             # Render back to the chosen unit (rounding counts happens in render)
             rendered = units.render(total_base, best_unit, dim)
+            
+            # Auto-convert volumes to grams for known baking ingredients!
+            if dim == 'VOLUME' and norm_name in DENSITIES:
+                mass_g = total_base * DENSITIES[norm_name]
+                mass_g_int = round(float(mass_g))
+                rendered["unit"] += f" ({mass_g_int}g)"
+                
             lines_out.append(rendered)
             
         mixed = len(lines_out) > 1
