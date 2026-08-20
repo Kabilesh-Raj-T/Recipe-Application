@@ -54,11 +54,31 @@ python backend/app.py
 
 ## Deploying to Render
 This application has been unified to run seamlessly out of a single integrated web service.
-Configure your Render Web Service with the following specs:
 
-* **Build Command**: `cd frontend && npm ci && npm run build && cd ../backend && pip install -r requirements.txt` (or just Render defaults handling requirements and running `cd frontend && npm ci && npm run build`)
-* **Start Command**: `cd backend && gunicorn app:app`
+The repo ships a `render.yaml` blueprint, so the easiest path is **New > Blueprint** in
+Render and point it at this repository. It picks up the commands below automatically, and
+the only thing left to do by hand is fill in `DATABASE_URL`.
+
+If you would rather configure a Web Service manually, use these specs:
+
+* **Build Command**: `pip install -r requirements.txt && cd frontend && npm ci && npm run build`
+* **Start Command**: `python -m gunicorn --bind 0.0.0.0:$PORT backend.app:app`
 * **Environment Variables**:
   * `DATABASE_URL` = `postgresql://...:6543/...` (Supabase connection string)
+
+Both commands run from the **repo root**, which matters:
+
+* `backend/app.py` imports its siblings as a package (`from backend.db import engine`). Starting
+  with `cd backend && gunicorn app:app` puts the wrong directory on `sys.path` and the boot fails
+  with `ModuleNotFoundError: No module named 'backend'`.
+* The root `requirements.txt` exists only so Render's Python runtime detects the project as
+  Python; it simply includes `backend/requirements.txt`, where the real dependency list lives.
+  Without a pip install in the build step you get `gunicorn: command not found` at startup.
+* The start command uses `python -m gunicorn` rather than bare `gunicorn`, so it does not depend
+  on the console script landing on `PATH`.
+* Gunicorn binds `127.0.0.1:8000` by default, which Render's proxy cannot reach ("no open ports
+  detected"). `--bind 0.0.0.0:$PORT` is required.
+* `frontend/dist/` is gitignored, so the `npm run build` step is what produces the static files
+  that Flask serves in the deployed service.
 
 Flask is configured natively to intercept non-API requests and serve the `frontend/dist/index.html` file to support robust client-side routing on refresh!

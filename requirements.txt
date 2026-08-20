@@ -1,0 +1,3 @@
+# Render's Python runtime auto-detects requirements.txt at the repo root.
+# The real dependency list lives with the backend code.
+-r backend/requirements.txt

@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: recipe-box
+    runtime: python
+    plan: free
+    # pip install runs first and explicitly: the root requirements.txt just
+    # includes backend/requirements.txt, which is where the real list lives.
+    # Then build the React bundle into frontend/dist for Flask to serve.
+    buildCommand: pip install -r requirements.txt && cd frontend && npm ci && npm run build
+    # `python -m gunicorn` instead of bare `gunicorn` so it does not depend on
+    # the console script being on PATH. Runs from the repo root because
+    # backend/app.py imports `from backend.db ...`.
+    startCommand: python -m gunicorn --bind 0.0.0.0:$PORT backend.app:app
+    envVars:
+      # Supabase pooler connection string (port 6543). Set in the Render
+      # dashboard — sync: false keeps the secret out of this file.
+      - key: DATABASE_URL
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.12.5"
