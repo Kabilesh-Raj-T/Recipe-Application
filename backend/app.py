@@ -144,6 +144,29 @@ def get_recipe(id):
             "steps": [s.text for s in steps_sorted]
         })
 
+@app.route('/api/ingredients', methods=['GET'])
+def list_ingredients():
+    from sqlalchemy import text
+    with Session(engine) as session:
+        query = text('''
+            SELECT 
+                normalized_name,
+                MAX(name) as name,
+                COUNT(DISTINCT recipe_id) as recipe_count
+            FROM recipe_ingredients
+            GROUP BY normalized_name
+            ORDER BY MAX(name)
+        ''')
+        results = session.execute(query).fetchall()
+        res = []
+        for row in results:
+            res.append({
+                "normalized_name": row.normalized_name,
+                "name": row.name,
+                "recipe_count": row.recipe_count
+            })
+        return jsonify(res)
+
 @app.route('/api/recipes/<int:id>', methods=['DELETE'])
 def delete_recipe(id):
     with Session(engine) as session:
