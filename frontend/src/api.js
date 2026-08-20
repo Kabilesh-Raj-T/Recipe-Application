@@ -39,3 +39,9 @@ export async function getShoppingList(selections) {
     if (!res.ok) throw new Error('Failed to generate shopping list');
     return res.json();
 }
+
+export async function getIngredients() {
+    const res = await fetch('/api/ingredients');
+    if (!res.ok) throw new Error('Failed to fetch ingredients');
+    return res.json();
+}
