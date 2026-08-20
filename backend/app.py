@@ -62,7 +62,13 @@ def create_recipe():
         return jsonify({"error": "servings must be a positive integer"}), 400
 
     with Session(engine) as session:
-        r = Recipe(name=data['name'], servings=servings)
+        from sqlalchemy import func
+        clean_name = data['name'].strip()
+        existing = session.query(Recipe).filter(func.lower(Recipe.name) == clean_name.lower()).first()
+        if existing:
+            return jsonify({"error": f"A recipe named '{existing.name}' already exists in your box."}), 400
+            
+        r = Recipe(name=clean_name, servings=servings)
         session.add(r)
         
         try:
