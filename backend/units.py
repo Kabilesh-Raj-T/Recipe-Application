@@ -5,12 +5,14 @@ import math
 
 DIMENSIONS = {
     'ml': 'VOLUME', 'cup': 'VOLUME', 'cups': 'VOLUME',
+    'tbsp': 'VOLUME', 'tablespoon': 'VOLUME', 'tablespoons': 'VOLUME',
     'g': 'MASS', 'kg': 'MASS', 'oz': 'MASS',
     'piece': 'COUNT', 'pieces': 'COUNT'
 }
 
 CONVERSIONS = {
     'ml': Fraction(1), 'cup': Fraction(236, 1), 'cups': Fraction(236, 1),
+    'tbsp': Fraction(15, 1), 'tablespoon': Fraction(15, 1), 'tablespoons': Fraction(15, 1),
     'g': Fraction(1), 'kg': Fraction(1000, 1), 'oz': Fraction(2835, 100),
     'piece': Fraction(1), 'pieces': Fraction(1)
 }

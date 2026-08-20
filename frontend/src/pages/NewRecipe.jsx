@@ -77,6 +77,7 @@ export default function NewRecipe() {
                                 style={{ width: '110px' }}
                             >
                                 <option value="ml">ml</option>
+                                <option value="tbsp">tbsp</option>
                                 <option value="cup">cup</option>
                                 <option value="cups">cups</option>
                                 <option value="g">g</option>
